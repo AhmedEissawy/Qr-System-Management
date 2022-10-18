@@ -50,7 +50,7 @@ namespace Qr_System.Controllers
 
                 if (data.isAuthenticated)
                 {
-                    return Ok(new { id = data.id,token = data.token,name = data.userName, type =data.type });
+                    return Ok(new { id = data.id, token = data.token, name = data.userName, type =data.type });
                 }
 
                 return StatusCode(StatusCodes.Status500InternalServerError,data);

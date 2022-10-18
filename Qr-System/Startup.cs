@@ -74,6 +74,7 @@ namespace Qr_System
             });
 
             services.AddTransient<IAuthService,AuthService>();
+            services.AddTransient<IUnitService,UnitService>();
 
             services.AddCors();
 

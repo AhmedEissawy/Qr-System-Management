@@ -78,7 +78,7 @@ namespace ServiceLayer.Services
             var user = await _userManager.FindByEmailAsync(loginViewModel.Email);
 
             if (user == null)
-                return new ResponseModel { message = "there is no user with that user" };
+                return new ResponseModel { message = "Bad Credntials" };
 
             var result = await _userManager.CheckPasswordAsync(user, loginViewModel.Password);
 
