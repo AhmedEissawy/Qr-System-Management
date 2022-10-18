@@ -53,6 +53,7 @@ namespace ServiceLayer.Services
                 PhoneNumber = registerViewModel.Phone,
                 UserName = registerViewModel.UserName,
                 Address = registerViewModel.Address,
+                Type = registerViewModel.Type
             };
 
             var result = await _userManager.CreateAsync(user, registerViewModel.Password);
