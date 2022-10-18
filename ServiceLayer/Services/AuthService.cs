@@ -40,10 +40,10 @@ namespace ServiceLayer.Services
         public async Task<ResponseModel> RegisterAsync(RegisterViewModel registerViewModel)
         {
             if (await _userManager.FindByEmailAsync(registerViewModel.Email) != null)
-                return new ResponseModel { Message = "Email is already Exist" };
+                return new ResponseModel { message = "Email is already Exist" };
 
             if (await _userManager.FindByNameAsync(registerViewModel.UserName) != null)
-                return new ResponseModel { Message = "User Name is already Exist" };
+                return new ResponseModel { message = "User Name is already Exist" };
 
             var user = new ApplicationUser
             {
@@ -62,14 +62,14 @@ namespace ServiceLayer.Services
             {
                 return new ResponseModel
                 {
-                    Errors = result.Errors.Select(e => e.Description).ToList()
+                    errors = result.Errors.Select(e => e.Description).ToList()
                 };
             }
 
             return new ResponseModel
             {
-                Message = "User Registered Successfully",
-                IsAuthenticated = true
+                message = "User Registered Successfully",
+                isAuthenticated = true
             };
         }
 
@@ -78,12 +78,12 @@ namespace ServiceLayer.Services
             var user = await _userManager.FindByEmailAsync(loginViewModel.Email);
 
             if (user == null)
-                return new ResponseModel { Message = "there is no user with that user" };
+                return new ResponseModel { message = "there is no user with that user" };
 
             var result = await _userManager.CheckPasswordAsync(user, loginViewModel.Password);
 
             if (!result)
-                return new ResponseModel { Message = "invalid password" };
+                return new ResponseModel { message = "invalid password" };
 
             var userClaims = new[]
             {
@@ -106,12 +106,13 @@ namespace ServiceLayer.Services
 
             return new ResponseModel
             {
-                Message = "user login successfully",
-                IsAuthenticated = true,
-                Token = tokenAsString,
-                ExpiresOn = token.ValidTo,
-                UserName = user.UserName,
-                UserId = user.Id
+                message = "user login successfully",
+                isAuthenticated = true,
+                token = tokenAsString,
+                expiresOn = token.ValidTo,
+                userName = user.UserName,
+                id = user.Id,
+                type = user.Type
             };
 
         }
@@ -121,7 +122,7 @@ namespace ServiceLayer.Services
             var user = await _userManager.FindByEmailAsync(email);
 
             if (user == null)
-                return new ResponseModel { Message = "there is no user with that email" };
+                return new ResponseModel { message = "there is no user with that email" };
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
@@ -137,10 +138,10 @@ namespace ServiceLayer.Services
 
             return new ResponseModel
             {
-                IsAuthenticated = true,
-                Token = validToken,
-                Email = user.Email,
-                Message = "Reset Password URL Sent to Your Email"
+                isAuthenticated = true,
+                token = validToken,
+                email = user.Email,
+                message = "Reset Password URL Sent to Your Email"
             };
         }
 
@@ -149,10 +150,10 @@ namespace ServiceLayer.Services
             var user = await _userManager.FindByEmailAsync(resetPasswordViewModel.Email);
 
             if (user == null)
-                return new ResponseModel { Message = "there is no user with that email" };
+                return new ResponseModel { message = "there is no user with that email" };
 
             if (resetPasswordViewModel.NewPassword != resetPasswordViewModel.ConfirmNewPassword)
-                return new ResponseModel { Message = "New password did not Match ConfirmPassword" };
+                return new ResponseModel { message = "New password did not Match ConfirmPassword" };
 
             var result = await _userManager.ResetPasswordAsync(user, resetPasswordViewModel.Token, resetPasswordViewModel.NewPassword);
 
@@ -160,15 +161,15 @@ namespace ServiceLayer.Services
             {
                 return new ResponseModel
                 {
-                    Message = "password Reset successfully",
-                    IsAuthenticated = true
+                    message = "password Reset successfully",
+                    isAuthenticated = true
                 };
             }
 
             return new ResponseModel
             {
-                Message = "Something went wrong",
-                Errors = result.Errors.Select(e => e.Description).ToList()
+                message = "Something went wrong",
+                errors = result.Errors.Select(e => e.Description).ToList()
             };
 
         }

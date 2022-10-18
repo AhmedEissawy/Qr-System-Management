@@ -29,9 +29,9 @@ namespace Qr_System.Controllers
             {
                 var data = await _authService.RegisterAsync(registerViewModel);
 
-                if (data.IsAuthenticated)
+                if (data.isAuthenticated)
                 {
-                    return Ok(new { message = data.Message });
+                    return Ok(new { message = data.message });
                 }
 
                 return StatusCode(StatusCodes.Status500InternalServerError,data);
@@ -48,9 +48,9 @@ namespace Qr_System.Controllers
             {
                 var data = await _authService.LoginAsync(loginViewModel);
 
-                if (data.IsAuthenticated)
+                if (data.isAuthenticated)
                 {
-                    return Ok(new { id = data.UserId,token = data.Token,name = data.UserName });
+                    return Ok(new { id = data.id,token = data.token,name = data.userName, type =data.type });
                 }
 
                 return StatusCode(StatusCodes.Status500InternalServerError,data);
@@ -67,9 +67,9 @@ namespace Qr_System.Controllers
             {
                 var data = await _authService.ForgetPasswordAsync(email);
 
-                if (data.IsAuthenticated)
+                if (data.isAuthenticated)
                 {
-                    return Ok(new { message = data.Message,token = data.Token,email = data.Email });
+                    return Ok(new { message = data.message,token = data.token,email = data.email });
                 }
 
                 return StatusCode(StatusCodes.Status500InternalServerError,data);
@@ -86,7 +86,7 @@ namespace Qr_System.Controllers
             {
                 var data = await _authService.ResetPasswordAsync(resetPasswordViewModel);
 
-                if (data.IsAuthenticated)
+                if (data.isAuthenticated)
                 {
                     return Ok(data);
                 }

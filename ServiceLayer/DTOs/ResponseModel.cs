@@ -7,25 +7,30 @@ namespace Qr_System.DTOs
 {
     public class ResponseModel
     {
-        public string Message { get; set; }
+        public string message { get; set; }
 
-        public bool IsAuthenticated { get; set; }
+        public bool isAuthenticated { get; set; }
 
-        public string Token { get; set; }
+        public string token { get; set; }
 
-        public string UserName { get; set; }
+        public string userName { get; set; }
 
-        public string UserId { get; set; }
+        public string id { get; set; }
 
-        public string Email { get; set; }
+        public string email { get; set; }
 
-        public List<string> Roles { get; set; }
+        public List<string> roles { get; set; }
 
-        public List<string> Errors { get; set; }
+        public List<string> errors { get; set; }
 
-        public DateTime ExpiresOn { get; set; }
+        public DateTime expiresOn { get; set; }
+
+        public string type { get; set; }
 
     }
 
 }
+
+
+
 
