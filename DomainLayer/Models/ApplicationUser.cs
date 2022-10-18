@@ -14,10 +14,6 @@ namespace DomainLayer.Models
         public string LastName { get; set; }
 
         public string Address { get; set; }
-
-        public string UnitName { get; set; }
-
-        public string Image { get; set; }
     }
 
 }

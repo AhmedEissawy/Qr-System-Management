@@ -11,20 +11,21 @@ namespace DomainLayer.Models
 
         public int Id { get; set; }
 
-        public DateTime Start { get; set; }
+        public DateTime StartDate { get; set; }
 
-        public DateTime End { get; set; }
+        public DateTime EndDate { get; set; }
 
         public string VisitorName { get; set; }
 
-        public string VisitorSSN { get; set; }
+        public string VisitorIdentifier { get; set; }
 
         public string UnitName { get; set; }
 
         public int OwnerId { get; set; }
 
-        public Owner Owner { get; set; }
+        public virtual Owner Owner { get; set; }
     }
 
 }
+
 
