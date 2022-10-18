@@ -103,7 +103,7 @@ namespace Qr_System
 
             });
 
-            //await IntilaizeDb(app);
+             IntilaizeDb(app);
 
             app.UseHttpsRedirection();
 
@@ -119,9 +119,9 @@ namespace Qr_System
             });
         }
 
-        //private static async Task IntilaizeDb(IApplicationBuilder app)
-        //{
-        //    await app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.MigrateAsync();
-        //}
+        private static void IntilaizeDb(IApplicationBuilder app)
+        {
+             app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.Migrate();
+        }
     }
 }

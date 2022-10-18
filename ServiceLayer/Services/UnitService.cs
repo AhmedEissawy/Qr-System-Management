@@ -28,21 +28,33 @@ namespace ServiceLayer.Services
             if (string.IsNullOrEmpty(unitViewModel.Phone))
                 return new UnitDto { message = "Enter Unit Phone " };
 
-            Unit unit = new Unit()
+            var result = await _context.Units.AnyAsync(u => u.Name.Contains(unitViewModel.Name));
+
+            if (!result)
             {
-                Name = unitViewModel.Name,
-                Phone = unitViewModel.Phone
-            };
+                Unit unit = new Unit()
+                {
+                    Name = unitViewModel.Name,
+                    Phone = unitViewModel.Phone
+                };
 
-            await _context.Units.AddAsync(unit);
+                await _context.Units.AddAsync(unit);
 
-            await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
+
+                return new UnitDto
+                {
+                    name = unit.Name,
+                    phone = unit.Phone,
+                    isSuccess =true
+                };
+            }
 
             return new UnitDto
             {
-                name = unit.Name,
-                phone = unit.Phone
+                message = "these unit is already exist"
             };
+           
 
         }
 

@@ -13,8 +13,11 @@ namespace ServiceLayer.DTOs
         public string phone { get; set; }
 
         public string message { get; set; }
+
+        public bool isSuccess { get; set; }
     }
 }
+
 
 
 

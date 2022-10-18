@@ -25,9 +25,22 @@ namespace Qr_System.Controllers
         {
             if (ModelState.IsValid)
             {
-                var data = await _unitService.CreateAsync(unitViewModel);
+                try
+                {
+                    var data = await _unitService.CreateAsync(unitViewModel);
 
-                return Ok(new { name = data.name, phone = data.phone });
+                    if (data.isSuccess)
+                    {
+                        return Ok(new { name = data.name, phone = data.phone });
+                    }
+
+                    return BadRequest(new {message = data.message });
+                                    
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, ex);
+                }
             }
 
             return BadRequest(ModelState);
@@ -36,9 +49,16 @@ namespace Qr_System.Controllers
         [HttpGet("GetAll")]
         public async Task<ActionResult> GetAll()
         {
-            var data = await _unitService.GetAllAsync();
+            try
+            {
+                var data = await _unitService.GetAllAsync();
 
-            return Ok(new { units = data.Select(u=>u.name).ToList()});
+                return Ok(new { units = data.Select(u => u.name).ToList() });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
         }
     }
 }
