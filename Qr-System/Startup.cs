@@ -50,6 +50,7 @@ namespace Qr_System
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;
                 options.Password.RequiredLength = 5;
+
             }).AddEntityFrameworkStores<ApplicationDbContext>()
               .AddDefaultTokenProviders();
 
@@ -74,6 +75,7 @@ namespace Qr_System
             });
 
             services.AddTransient<IAuthService,AuthService>();
+
             services.AddTransient<IUnitService,UnitService>();
 
             services.AddCors();
@@ -85,7 +87,7 @@ namespace Qr_System
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public async void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -94,11 +96,14 @@ namespace Qr_System
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Qr_System v1"));
             }
 
-            app.UseCors(options=> {
+            app.UseCors(options =>
+            {
 
                 options.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader();
 
             });
+
+            await IntilaizeDb(app);
 
             app.UseHttpsRedirection();
 
@@ -112,6 +117,11 @@ namespace Qr_System
             {
                 endpoints.MapControllers();
             });
+        }
+
+        private static async Task IntilaizeDb(IApplicationBuilder app)
+        {
+            await app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.MigrateAsync();
         }
     }
 }
