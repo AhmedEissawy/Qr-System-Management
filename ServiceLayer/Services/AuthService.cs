@@ -50,11 +50,9 @@ namespace ServiceLayer.Services
                 Email = registerViewModel.Email,
                 FirstName = registerViewModel.FirstName,
                 LastName = registerViewModel.LastName,
-                PhoneNumber = registerViewModel.PhoneNumber,
+                PhoneNumber = registerViewModel.Phone,
                 UserName = registerViewModel.UserName,
                 Address = registerViewModel.Address,
-                UnitName = registerViewModel.UnitName,
-                Image = UploadPhoto(registerViewModel)
             };
 
             var result = await _userManager.CreateAsync(user, registerViewModel.Password);
@@ -219,23 +217,5 @@ namespace ServiceLayer.Services
             client.Dispose();
         }
 
-        public string UploadPhoto(RegisterViewModel model)
-        {
-            if (model.Photo != null)
-            {
-                string uploadFolder = Path.Combine(_host.WebRootPath, "Images/Users");
-                string uniqueFileName = Guid.NewGuid() + ".jpg";
-                string filePath = Path.Combine(uploadFolder, uniqueFileName);
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    model.Photo.CopyTo(fileStream);
-                }
-
-                return uniqueFileName;
-
-            }
-
-            return "user do not upload photo";
-        }
     }
 }

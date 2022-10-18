@@ -22,8 +22,12 @@ namespace Qr_System.ViewModels
         public string UserName { get; set; }
 
         [Required]
+        [StringLength(150)]
+        public string Address { get; set; }
+
+        [Required]
         [StringLength(100)]
-        public string PhoneNumber { get; set; }
+        public string Phone { get; set; }
 
         [Required]
         [StringLength(150)]
@@ -39,15 +43,5 @@ namespace Qr_System.ViewModels
         [Compare("Password")]
         public string ConfirmPassword { get; set; }
 
-        [Required]
-        [StringLength(150)]
-        public string Address { get; set; }
-
-        [Required]
-        [StringLength(50)]
-        public string UnitName { get; set; }
-
-        [Required]
-        public IFormFile Photo { get; set; }
     }
 }
