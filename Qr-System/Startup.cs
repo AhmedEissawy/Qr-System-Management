@@ -87,7 +87,7 @@ namespace Qr_System
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public async void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public  void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -103,7 +103,7 @@ namespace Qr_System
 
             });
 
-            await IntilaizeDb(app);
+            //await IntilaizeDb(app);
 
             app.UseHttpsRedirection();
 
@@ -119,9 +119,9 @@ namespace Qr_System
             });
         }
 
-        private static async Task IntilaizeDb(IApplicationBuilder app)
-        {
-            await app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.MigrateAsync();
-        }
+        //private static async Task IntilaizeDb(IApplicationBuilder app)
+        //{
+        //    await app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.MigrateAsync();
+        //}
     }
 }
