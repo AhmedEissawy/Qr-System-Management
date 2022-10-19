@@ -24,11 +24,14 @@ namespace DomainLayer.Models
 
         public string Email { get; set; }
 
-        public Unit Unit { get; set; }
+        public string Image { get; set; }
+
+        public virtual Unit Unit { get; set; }
 
         public virtual ICollection<Invitaion> Invitaions { get; set; }
 
     }
 }
+
 
 

@@ -2,24 +2,17 @@ using DomainLayer.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RepositoryLayer;
 using ServiceLayer.IServices;
 using ServiceLayer.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Qr_System
 {
@@ -37,24 +30,25 @@ namespace Qr_System
         {
 
             services.AddControllers().AddNewtonsoftJson(options =>
-            
+
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
 
-            services.AddDbContext<ApplicationDbContext>(options=> {
+            services.AddDbContext<ApplicationDbContext>(options =>
+            {
 
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
 
             });
 
-            services.AddIdentity<ApplicationUser,IdentityRole>(options =>
-            {
+            services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+             {
 
-                options.Password.RequireDigit = true;
-                options.Password.RequireLowercase = true;
-                options.Password.RequiredLength = 5;
+                 options.Password.RequireDigit = true;
+                 options.Password.RequireLowercase = true;
+                 options.Password.RequiredLength = 5;
 
-            }).AddEntityFrameworkStores<ApplicationDbContext>()
+             }).AddEntityFrameworkStores<ApplicationDbContext>()
               .AddDefaultTokenProviders();
 
             services.AddAuthentication(auth =>
@@ -71,60 +65,85 @@ namespace Qr_System
                     ValidateAudience = true,
                     RequireExpirationTime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidAudience =Configuration["AuthSettings:Audience"],
+                    ValidAudience = Configuration["AuthSettings:Audience"],
                     ValidIssuer = Configuration["AuthSettings:Issuer"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AuthSettings:Key"]))
                 };
             });
 
-            services.AddTransient<IAuthService,AuthService>();
+            services.AddTransient<IAuthService, AuthService>();
 
-            services.AddTransient<IUnitService,UnitService>();
+            services.AddTransient<IUnitService, UnitService>();
 
             services.AddCors();
 
-            services.AddSwaggerGen(c =>
+            services.AddSwaggerGen(opt =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Qr_System", Version = "v1" });
-            });
-        }
+                opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Please insert JWT with Bearer into field",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey
+                });
+                opt.AddSecurityRequirement(new OpenApiSecurityRequirement {
+                        {
+                            new OpenApiSecurityScheme {
+                                Reference = new OpenApiReference {
+                                    Type = ReferenceType.SecurityScheme,
+                                        Id = "Bearer"
+                                }
+                            },
+                            new string[] { }
+                        }
+                    });
 
+            });
+
+
+
+        }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public  void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            if (env.IsDevelopment())
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
             {
-                app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Qr_System v1"));
+                if (env.IsDevelopment())
+                {
+                    app.UseDeveloperExceptionPage();
+                    app.UseSwagger();
+                    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Qr_System v1"));
+                }
+
+                app.UseCors(options =>
+                {
+
+                    options.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader();
+
+                });
+
+                IntilaizeDb(app);
+
+                app.UseHttpsRedirection();
+
+                app.UseRouting();
+
+                app.UseAuthentication();
+
+                app.UseAuthorization();
+
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapControllers();
+                });
+
+                
             }
 
-            app.UseCors(options =>
-            {
-
-                options.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader();
-
-            });
-
-             IntilaizeDb(app);
-
-            app.UseHttpsRedirection();
-
-            app.UseRouting();
-
-            app.UseAuthentication();
-
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-        }
+        
 
         private static void IntilaizeDb(IApplicationBuilder app)
         {
-             app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.Migrate();
+            app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.Migrate();
         }
     }
-}
+    }
+
