@@ -8,6 +8,8 @@ namespace ServiceLayer.DTOs
 {
     public class UnitDto
     {
+        public int id { get; set; }
+
         public string name { get; set; }
 
         public string phone { get; set; }
@@ -17,6 +19,7 @@ namespace ServiceLayer.DTOs
         public bool isSuccess { get; set; }
     }
 }
+
 
 
 

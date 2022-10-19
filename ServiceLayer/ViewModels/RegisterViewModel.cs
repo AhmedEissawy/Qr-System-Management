@@ -47,6 +47,9 @@ namespace Qr_System.ViewModels
         [StringLength(50)]
         public string Type { get; set; }
 
+        public IFormFile Photo { get; set; }
+
     }
 }
+
 

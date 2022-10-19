@@ -55,7 +55,7 @@ namespace Qr_System.Controllers
             {
                 var data = await _unitService.GetAllAsync();
 
-                return Ok(new { units = data.Select(u => u.name).ToList() });
+                return Ok(data.Select(u=>new {id = u.id,name = u.name}));
             }
             catch (Exception ex)
             {
