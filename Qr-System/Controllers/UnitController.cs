@@ -72,11 +72,17 @@ namespace Qr_System.Controllers
                 {
                     if (id == 0)
                     {
-                        return BadRequest("there is no id");
+                        return BadRequest($"there is no unit whit that id = '{id}'");
                     }
+
                     var data = await _unitService.UpdateAsync(id, unitViewModel);
 
-                    return Ok(data);
+                    if (data.isSuccess)
+                    {
+                        return Ok(new { name = data.name, phone = data.phone });
+                    }
+
+                    return BadRequest(new { message = data.message});
                 }
                 catch (Exception ex)
                 {
@@ -97,7 +103,7 @@ namespace Qr_System.Controllers
             {
                 if (id == 0)
                 {
-                    return BadRequest("there is no id");
+                    return BadRequest($"there is no unit with that id = '{id}'");
                 }
 
                 await _unitService.DeleteAsync(id);

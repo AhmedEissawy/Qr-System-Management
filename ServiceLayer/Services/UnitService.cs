@@ -77,6 +77,15 @@ namespace ServiceLayer.Services
         {
             var existUnit = await _context.Units.FindAsync(id);
 
+            if (existUnit == null)
+                return new UnitDto { message = $"there is no unit with that id = '{id}'" };
+
+            if (string.IsNullOrEmpty(unitViewModel.Name))
+                return new UnitDto { message = "Enter Unit Name " };
+
+            if (string.IsNullOrEmpty(unitViewModel.Phone))
+                return new UnitDto { message = "Enter Unit Phone " };
+
             existUnit.Name = unitViewModel.Name;
 
             existUnit.Phone = unitViewModel.Phone;
@@ -85,11 +94,14 @@ namespace ServiceLayer.Services
 
             await _context.SaveChangesAsync();
 
-            return new UnitDto
-            {
-                name = existUnit.Name,
-                phone = existUnit.Phone
-            };
+                return new UnitDto
+                {
+                    name = existUnit.Name,
+                    phone = existUnit.Phone,
+                    isSuccess =true
+                };
+            
         }
     }
 }
+
