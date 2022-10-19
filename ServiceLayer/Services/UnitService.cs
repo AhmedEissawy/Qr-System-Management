@@ -58,10 +58,38 @@ namespace ServiceLayer.Services
 
         }
 
+        public async Task DeleteAsync(int id)
+        {
+            var existUnit = await _context.Units.FindAsync(id);
+
+             _context.Units.Remove(existUnit);
+
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<IEnumerable<UnitDto>> GetAllAsync()
         {
             var units = await _context.Units.Select(u=> new UnitDto {name =u.Name }).ToListAsync();
             return units;
+        }
+
+        public async Task<UnitDto> UpdateAsync(int id, UnitViewModel unitViewModel)
+        {
+            var existUnit = await _context.Units.FindAsync(id);
+
+            existUnit.Name = unitViewModel.Name;
+
+            existUnit.Phone = unitViewModel.Phone;
+
+            _context.Units.Update(existUnit);
+
+            await _context.SaveChangesAsync();
+
+            return new UnitDto
+            {
+                name = existUnit.Name,
+                phone = existUnit.Phone
+            };
         }
     }
 }

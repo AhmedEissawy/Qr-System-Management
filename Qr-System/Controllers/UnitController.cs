@@ -62,8 +62,57 @@ namespace Qr_System.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex);
             }
         }
+
+        [HttpPut("Update/{id}")]
+        public async Task<ActionResult> Update(int id,[FromBody] UnitViewModel unitViewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    if (id == 0)
+                    {
+                        return BadRequest("there is no id");
+                    }
+                    var data = await _unitService.UpdateAsync(id, unitViewModel);
+
+                    return Ok(data);
+                }
+                catch (Exception ex)
+                {
+
+                    return StatusCode(StatusCodes.Status500InternalServerError, ex);
+                }
+
+            }
+
+            return BadRequest(ModelState);
+            
+        }
+
+        [HttpDelete("Delete/{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            try
+            {
+                if (id == 0)
+                {
+                    return BadRequest("there is no id");
+                }
+
+                await _unitService.DeleteAsync(id);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+        }
     }
 }
+
 
 
 

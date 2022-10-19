@@ -13,6 +13,11 @@ namespace ServiceLayer.IServices
         Task<UnitDto> CreateAsync(UnitViewModel unitViewModel);
 
         Task<IEnumerable<UnitDto>> GetAllAsync();
+
+        Task<UnitDto> UpdateAsync(int id, UnitViewModel unitViewModel);
+
+        Task DeleteAsync(int id);
+
     }
 }
 
