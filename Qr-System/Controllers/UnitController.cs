@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ServiceLayer.IServices;
 using ServiceLayer.ViewModels;
@@ -11,6 +12,7 @@ namespace Qr_System.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UnitController : ControllerBase
     {
         private readonly IUnitService _unitService;
