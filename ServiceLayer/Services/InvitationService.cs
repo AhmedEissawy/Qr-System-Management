@@ -58,7 +58,8 @@ namespace ServiceLayer.Services
                 unitName = invitaion.UnitName,
                 ownerName = invitaion.Owner.UserName,
                 startDate = invitaion.StartDate,
-                endDate = invitaion.EndDate
+                endDate = invitaion.EndDate,
+                isSuccess =true
             };
 
             return invitaionDto;

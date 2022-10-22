@@ -33,22 +33,21 @@ namespace Qr_System.Controllers
                 {
                     var data = await _invitationService.CreateAsync(invitationViewModel);
 
-                    if (data == null)
+                    if (!data.isSuccess)
                     {
-                        return BadRequest("Something Went Wrong");
+                        return BadRequest(new { message =data.message});
                     }
 
-                    return Ok(await GenerateQr(data));
-
-                    ////return Ok(new {
-                    ////    visitorName =data.visitorName ,
-                    ////    visitorIdentifer = data.sSN,
-                    ////    ownerName = data.ownerName,
-                    ////    unitName = data.unitName,
-                    ////    startDate = data.startDate,
-                    ////    endDate = data.endDate
-                    //});
-                }
+                    return Ok(new
+                    {
+                        visitorName = data.visitorName,
+                        visitorIdentifer = data.sSN,
+                        ownerName = data.ownerName,
+                        unitName = data.unitName,
+                        startDate = data.startDate,
+                        endDate = data.endDate,
+                    });
+            }
                 catch (Exception ex)
                 {
 
@@ -75,10 +74,10 @@ namespace Qr_System.Controllers
             }
         }
 
-        private byte[] ImageToByteArray(Image imageIn)
+        private byte[] BitMapToByteArray(Bitmap bitmap)
         {
             using MemoryStream ms = new MemoryStream();
-            imageIn.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+            bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
             return ms.ToArray();
         }
 
@@ -88,11 +87,11 @@ namespace Qr_System.Controllers
             QRCodeGenerator qRCodeGenerator = new QRCodeGenerator();
             QRCodeData qRCodeData = qRCodeGenerator.CreateQrCode(invitation.ToString(), QRCodeGenerator.ECCLevel.Q);
             QRCode qRCode = new QRCode(qRCodeData);
-            Image qrCodeImage = qRCode.GetGraphic(20);
+            Bitmap qrCodeImage = qRCode.GetGraphic(20);
 
-            var bytes = await Task.FromResult( ImageToByteArray(qrCodeImage));
+            var bytes = await Task.FromResult(BitMapToByteArray(qrCodeImage));
 
-            return File(bytes, "Image/bmp");
+            return File(bytes,"image/jpeg");
         }
     }
 }

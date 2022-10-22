@@ -21,5 +21,7 @@ namespace ServiceLayer.DTOs
         public string ownerName { get; set; }
 
         public string message { get; set; }
+
+        public bool isSuccess { get; set; }
     }
 }
