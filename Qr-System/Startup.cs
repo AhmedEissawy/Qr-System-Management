@@ -101,51 +101,48 @@ namespace Qr_System
                     });
 
             });
-
-
-
         }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
             {
-                if (env.IsDevelopment())
-                {
-                    app.UseDeveloperExceptionPage();
-                    app.UseSwagger();
-                    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Qr_System v1"));
-                }
-
-                app.UseCors(options =>
-                {
-
-                    options.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader();
-
-                });
-
-                IntilaizeDb(app);
-
-                app.UseHttpsRedirection();
-
-                app.UseRouting();
-
-                app.UseAuthentication();
-
-                app.UseAuthorization();
-
-                app.UseEndpoints(endpoints =>
-                {
-                    endpoints.MapControllers();
-                });
-
-                
+                app.UseDeveloperExceptionPage();
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Qr_System v1"));
             }
 
-        
+            app.UseCors(options =>
+            {
+
+                options.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader();
+
+            });
+
+            IntilaizeDb(app);
+
+            app.UseHttpsRedirection();
+
+            app.UseRouting();
+
+            app.UseAuthentication();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+
+
+        }
+
+
 
         private static void IntilaizeDb(IApplicationBuilder app)
         {
             app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.Migrate();
         }
     }
-    }
+}
 

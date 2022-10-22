@@ -38,14 +38,16 @@ namespace Qr_System.Controllers
                         return BadRequest("Something Went Wrong");
                     }
 
-                    return Ok(new {
-                        visitorName =data.visitorName ,
-                        visitorIdentifer = data.sSN,
-                        ownerName = data.ownerName,
-                        unitName = data.unitName,
-                        startDate = data.startDate,
-                        endDate = data.endDate
-                    });
+                    return Ok(await GenerateQr(data));
+
+                    ////return Ok(new {
+                    ////    visitorName =data.visitorName ,
+                    ////    visitorIdentifer = data.sSN,
+                    ////    ownerName = data.ownerName,
+                    ////    unitName = data.unitName,
+                    ////    startDate = data.startDate,
+                    ////    endDate = data.endDate
+                    //});
                 }
                 catch (Exception ex)
                 {
@@ -73,13 +75,14 @@ namespace Qr_System.Controllers
             }
         }
 
-        public byte[] ImageToByteArray(Image imageIn)
+        private byte[] ImageToByteArray(Image imageIn)
         {
-            MemoryStream ms = new MemoryStream();
+            using MemoryStream ms = new MemoryStream();
             imageIn.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
             return ms.ToArray();
         }
 
+        [HttpGet("GenerateQr")]
         public async Task<ActionResult> GenerateQr(InvitationDto invitation)
         {
             QRCodeGenerator qRCodeGenerator = new QRCodeGenerator();
@@ -87,7 +90,7 @@ namespace Qr_System.Controllers
             QRCode qRCode = new QRCode(qRCodeData);
             Image qrCodeImage = qRCode.GetGraphic(20);
 
-            var bytes = ImageToByteArray(qrCodeImage);
+            var bytes = await Task.FromResult( ImageToByteArray(qrCodeImage));
 
             return File(bytes, "Image/bmp");
         }
