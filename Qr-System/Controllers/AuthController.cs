@@ -23,7 +23,7 @@ namespace Qr_System.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<ActionResult> Register([FromBody]RegisterViewModel registerViewModel)
+        public async Task<ActionResult> Register([FromForm]RegisterViewModel registerViewModel)
         {
             if (ModelState.IsValid)
             {

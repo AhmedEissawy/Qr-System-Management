@@ -32,6 +32,11 @@ namespace RepositoryLayer
                 .HasMany(i => i.Invitaions)
                 .WithOne(i=>i.Owner)
                 .HasForeignKey(a=>a.OwnerId);
+
+            builder.Entity<ApplicationUser>()
+                .HasOne(a => a.Owner)
+                .WithOne(a => a.ApplicationUser)
+                .HasForeignKey<Owner>(a => a.ApplicationUserId);
  
         }
 

@@ -17,10 +17,9 @@ namespace DomainLayer.Models
 
         public string Type { get; set; }
 
+        public string Image { get; set; }
+
+        public virtual Owner Owner { get; set; } 
+
     }
-
 }
-
-
-
-

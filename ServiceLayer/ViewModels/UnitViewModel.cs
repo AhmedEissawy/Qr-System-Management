@@ -16,8 +16,5 @@ namespace ServiceLayer.ViewModels
         [Required]
         [StringLength(50)]
         public string Phone { get; set; }
-
     }
 }
-
-

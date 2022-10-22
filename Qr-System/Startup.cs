@@ -75,6 +75,8 @@ namespace Qr_System
 
             services.AddTransient<IUnitService, UnitService>();
 
+            services.AddTransient<IInvitationService, InvitationService>();
+
             services.AddCors();
 
             services.AddSwaggerGen(opt =>

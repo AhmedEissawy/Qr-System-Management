@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using MimeKit;
 using Qr_System.DTOs;
 using Qr_System.ViewModels;
+using RepositoryLayer;
 using ServiceLayer.IServices;
 using ServiceLayer.ViewModels;
 using System;
@@ -28,23 +29,56 @@ namespace ServiceLayer.Services
 
         private readonly IConfiguration _configuration;
 
+        private readonly ApplicationDbContext _context;
+
         private IHostingEnvironment _host;
 
-        public AuthService(UserManager<ApplicationUser> userManager, IHostingEnvironment host, IConfiguration configuration)
+        public AuthService(UserManager<ApplicationUser> userManager, IHostingEnvironment host, IConfiguration configuration, ApplicationDbContext context)
         {
             _userManager = userManager;
             _host = host;
             _configuration = configuration;
+            _context = context;
         }
 
         public async Task<ResponseModel> RegisterAsync(RegisterViewModel registerViewModel)
-        {
+            {
             if (await _userManager.FindByEmailAsync(registerViewModel.Email) != null)
                 return new ResponseModel { message = "Email is already Exist" };
 
             if (await _userManager.FindByNameAsync(registerViewModel.UserName) != null)
                 return new ResponseModel { message = "User Name is already Exist" };
 
+            if (registerViewModel.Type == "user")
+            {
+                var applicationUser = new ApplicationUser
+                {
+                    Email = registerViewModel.Email,
+                    FirstName = registerViewModel.FirstName,
+                    LastName = registerViewModel.LastName,
+                    PhoneNumber = registerViewModel.Phone,
+                    UserName = registerViewModel.UserName,
+                    Address = registerViewModel.Address,
+                    Image = UploadPhoto(registerViewModel),
+                    Type = registerViewModel.Type,
+                };
+
+                var appResult = await _userManager.CreateAsync(applicationUser, registerViewModel.Password);
+
+                if (!appResult.Succeeded)
+                {
+                    return new ResponseModel
+                    {
+                        errors = appResult.Errors.Select(e => e.Description).ToList()
+                    };
+                }
+
+                return new ResponseModel
+                {
+                    message = "User Registered Successfully",
+                    isAuthenticated = true
+                };
+            }
             var user = new ApplicationUser
             {
                 Email = registerViewModel.Email,
@@ -53,10 +87,31 @@ namespace ServiceLayer.Services
                 PhoneNumber = registerViewModel.Phone,
                 UserName = registerViewModel.UserName,
                 Address = registerViewModel.Address,
-                Type = registerViewModel.Type
+                Image = UploadPhoto(registerViewModel),
+                Type = registerViewModel.Type,
+            };
+
+            user.Owner = new Owner
+            {
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Phone = user.PhoneNumber,
+                UserName = user.UserName,
+                Address = user.Address,
+                ApplicationUserId = user.Id,
+                Password = user.PasswordHash,
+                Type = user.Type,  
+                Image = UploadPhoto(registerViewModel),
             };
 
             var result = await _userManager.CreateAsync(user, registerViewModel.Password);
+
+            var unit = await _context.Units.FindAsync(registerViewModel.UnitId);
+
+            unit.OwnerId = user.Owner.Id;
+
+            await _context.SaveChangesAsync();
 
             if (!result.Succeeded)
             {
@@ -68,9 +123,10 @@ namespace ServiceLayer.Services
 
             return new ResponseModel
             {
-                message = "User Registered Successfully",
+                message = "Owner Registered Successfully",
                 isAuthenticated = true
             };
+
         }
 
         public async Task<ResponseModel> LoginAsync(LoginViewModel loginViewModel)
@@ -217,6 +273,25 @@ namespace ServiceLayer.Services
             client.Disconnect(true);
 
             client.Dispose();
+        }
+
+        public string UploadPhoto(RegisterViewModel model)
+        {
+            if (model.Photo != null)
+            {
+                string uploadFolder = Path.Combine(_host.WebRootPath, "Images/Users");
+                string uniqueFileName = Guid.NewGuid() + ".jpg";
+                string filePath = Path.Combine(uploadFolder, uniqueFileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    model.Photo.CopyTo(fileStream);
+                }
+
+                return uniqueFileName;
+
+            }
+
+            return "user do not upload photo";
         }
 
     }
