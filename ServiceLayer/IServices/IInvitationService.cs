@@ -14,6 +14,8 @@ namespace ServiceLayer.IServices
 
         Task<IEnumerable<InvitationDto>> GetAllAsync();
 
+        Task<InvitationDto> GetByIdAsync(int id);
+
         Task DeleteAsync(int id);
 
         Task ApproveInvitationAsync(int id);

@@ -65,7 +65,43 @@ namespace Qr_System.Controllers
             {
                 var data = await _invitationService.GetAllAsync();
 
-                return Ok(data);
+                if (data.Any())
+                {
+                    return Ok(data);
+                }
+
+                return BadRequest("Some Thing Went Wrong");
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult> Get(int id)
+        {
+            try
+            {
+                if (id == 0)
+                {
+                    return BadRequest($"there is no invitation with that id = '{id}'");
+                }
+
+                var data = await _invitationService.GetByIdAsync(id);
+
+                    return Ok(new
+                    {
+                        visitorName = data.visitorName,
+                        visitorIdentifer = data.sSN,
+                        ownerName = data.ownerName,
+                        unitName = data.unitName,
+                        startDate = data.startDate,
+                        endDate = data.endDate,
+                        approved = data.Approve
+                    });
+
             }
             catch (Exception ex)
             {

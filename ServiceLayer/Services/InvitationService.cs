@@ -87,9 +87,9 @@ namespace ServiceLayer.Services
 
         public async Task<IEnumerable<InvitationDto>> GetAllAsync()
         {
-            var date = DateTime.Today.ToString("MM/dd/yyyy");
+            DateTime date = DateTime.Now.Date;
 
-            var invitations = await _context.Invitaions.Include(i=>i.Owner).Select(i=> new InvitationDto { 
+            var invitations = await _context.Invitaions.Include(i=>i.Owner).Where(i=>i.StartDate.Date == date).Select(i=> new InvitationDto { 
             
                  visitorName =i.VisitorName,
                  sSN = i.VisitorIdentifier,
@@ -97,11 +97,29 @@ namespace ServiceLayer.Services
                  unitName = i.UnitName,
                  startDate = i.StartDate,
                  endDate = i.EndDate,
-
+                 Approve =i.Approve,
             }).ToListAsync();
 
             return invitations;
         }
 
+        public async Task<InvitationDto> GetByIdAsync(int id)
+        {
+            var invitation = await _context.Invitaions.Include(i=>i.Owner).FirstOrDefaultAsync(i=>i.Id == id);
+
+            var invitaionDto = new InvitationDto()
+            {
+                startDate = invitation.StartDate,
+                endDate = invitation.EndDate,
+                visitorName = invitation.VisitorName,
+                ownerName = invitation.Owner.UserName,
+                unitName = invitation.UnitName,
+                sSN = invitation.VisitorIdentifier,
+                Approve =invitation.Approve,
+                isSuccess = true
+            };
+
+            return invitaionDto;
+        }
     }
 }
