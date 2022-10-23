@@ -21,11 +21,11 @@ namespace DomainLayer.Models
 
         public string UnitName { get; set; }
 
+        public bool Approve { get; set; }
+
         public int OwnerId { get; set; }
 
         public virtual Owner Owner { get; set; }
     }
 
 }
-
-

@@ -21,6 +21,16 @@ namespace ServiceLayer.Services
             _context = context;
         }
 
+        public async Task ApproveInvitationAsync(int id)
+        {
+            var invitation = await _context.Invitaions.FindAsync(id);
+
+            invitation.Approve = true;
+
+            await _context.SaveChangesAsync();
+
+        }
+
         public async Task<InvitationDto> CreateAsync(InvitationViewModel invitationViewModel)
         {
             var unit = await _context.Units.FindAsync(invitationViewModel.UnitId);
@@ -66,8 +76,19 @@ namespace ServiceLayer.Services
 
         }
 
+        public async Task DeleteAsync(int id)
+        {
+            var invitation = await _context.Invitaions.FindAsync(id);
+
+            _context.Invitaions.Remove(invitation);
+
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<IEnumerable<InvitationDto>> GetAllAsync()
         {
+            var date = DateTime.Today.ToString("MM/dd/yyyy");
+
             var invitations = await _context.Invitaions.Include(i=>i.Owner).Select(i=> new InvitationDto { 
             
                  visitorName =i.VisitorName,

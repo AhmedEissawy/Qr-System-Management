@@ -47,7 +47,7 @@ namespace Qr_System.Controllers
                         startDate = data.startDate,
                         endDate = data.endDate,
                     });
-            }
+                }
                 catch (Exception ex)
                 {
 
@@ -74,24 +74,46 @@ namespace Qr_System.Controllers
             }
         }
 
-        private byte[] BitMapToByteArray(Bitmap bitmap)
+        [HttpDelete("Delete/{id}")]
+        public async Task<ActionResult> Delete(int id)
         {
-            using MemoryStream ms = new MemoryStream();
-            bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-            return ms.ToArray();
+            try
+            {
+                if (id == 0)
+                {
+                    return BadRequest($"there is no invitation with that id = '{id}'");
+                }
+
+                await _invitationService.DeleteAsync(id);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
         }
 
-        [HttpGet("GenerateQr")]
-        public async Task<ActionResult> GenerateQr(InvitationDto invitation)
+        [HttpGet("Approve/{id}")]
+        public async Task<ActionResult> Approve(int id)
         {
-            QRCodeGenerator qRCodeGenerator = new QRCodeGenerator();
-            QRCodeData qRCodeData = qRCodeGenerator.CreateQrCode(invitation.ToString(), QRCodeGenerator.ECCLevel.Q);
-            QRCode qRCode = new QRCode(qRCodeData);
-            Bitmap qrCodeImage = qRCode.GetGraphic(20);
+            try
+            {
+                if (id == 0)
+                {
+                    return BadRequest($"there is no invitation with that id = '{id}'");
+                }
 
-            var bytes = await Task.FromResult(BitMapToByteArray(qrCodeImage));
+                await _invitationService.ApproveInvitationAsync(id);
 
-            return File(bytes,"image/jpeg");
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
         }
     }
 }

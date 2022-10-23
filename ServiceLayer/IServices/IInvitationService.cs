@@ -13,5 +13,9 @@ namespace ServiceLayer.IServices
         Task<InvitationDto> CreateAsync(InvitationViewModel invitationViewModel);
 
         Task<IEnumerable<InvitationDto>> GetAllAsync();
+
+        Task DeleteAsync(int id);
+
+        Task ApproveInvitationAsync(int id);
     }
 }
