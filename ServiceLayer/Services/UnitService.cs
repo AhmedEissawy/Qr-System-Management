@@ -69,7 +69,7 @@ namespace ServiceLayer.Services
 
         public async Task<IEnumerable<UnitDto>> GetAllAsync()
         {
-            var units = await _context.Units.Select(u=> new UnitDto {id = u.Id,name =u.Name }).ToListAsync();
+            var units = await _context.Units.Select(u=> new UnitDto {id = u.Id,name =u.Name,phone = u.Phone }).ToListAsync();
             return units;
         }
 

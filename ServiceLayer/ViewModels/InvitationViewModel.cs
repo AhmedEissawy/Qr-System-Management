@@ -19,11 +19,20 @@ namespace ServiceLayer.ViewModels
         public string VisitorName { get; set; }
 
         [Required]
+        public string VisitorPhone { get; set; }
+
+        [Required]
         public string SSN { get; set; }
 
         public int UnitId { get; set; }
 
         [Required]
         public string OwnerName { get; set; }
+
+        [Required]
+        public string OwnerEmail { get; set; }
+
+        [Required]
+        public string OwnerPhone { get; set; }
     }
 }

@@ -9,10 +9,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Qr_System.Extensions;
 using RepositoryLayer;
 using ServiceLayer.IServices;
 using ServiceLayer.Services;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Qr_System
 {
@@ -105,12 +107,12 @@ namespace Qr_System
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
+            //if (env.IsDevelopment())
+            //{
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Qr_System v1"));
-            }
+            //}
 
             app.UseCors(options =>
             {
@@ -119,7 +121,7 @@ namespace Qr_System
 
             });
 
-            IntilaizeDb(app);
+            app.IntilaizeDb();
 
             app.UseHttpsRedirection();
 
@@ -133,16 +135,7 @@ namespace Qr_System
             {
                 endpoints.MapControllers();
             });
-
-
         }
 
-
-
-        private static void IntilaizeDb(IApplicationBuilder app)
-        {
-            app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.Migrate();
-        }
     }
 }
-

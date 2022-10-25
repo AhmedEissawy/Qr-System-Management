@@ -42,10 +42,15 @@ namespace Qr_System.Controllers
                     {
                         visitorName = data.visitorName,
                         visitorIdentifer = data.sSN,
+                        visitorPhone = data.visitorPhone,
                         ownerName = data.ownerName,
+                        ownerPhone = data.ownerPhone,
+                        ownerEmail = data.ownerEmail,
                         unitName = data.unitName,
                         startDate = data.startDate,
                         endDate = data.endDate,
+                        id = data.id,
+                        approve =data.Approve
                     });
                 }
                 catch (Exception ex)
@@ -70,7 +75,7 @@ namespace Qr_System.Controllers
                     return Ok(data);
                 }
 
-                return BadRequest("Some Thing Went Wrong");
+                return Ok("There Is No Invitation Today ");
             }
             catch (Exception ex)
             {
@@ -95,11 +100,15 @@ namespace Qr_System.Controllers
                     {
                         visitorName = data.visitorName,
                         visitorIdentifer = data.sSN,
+                        visitorPhone = data.visitorPhone,
                         ownerName = data.ownerName,
+                        ownerEmail = data.ownerEmail,
+                        ownerPhone = data.ownerPhone,
                         unitName = data.unitName,
                         startDate = data.startDate,
                         endDate = data.endDate,
-                        approved = data.Approve
+                        approved = data.Approve,
+                        id = data.id,
                     });
 
             }
@@ -131,19 +140,21 @@ namespace Qr_System.Controllers
             }
         }
 
-        [HttpGet("Approve/{id}")]
-        public async Task<ActionResult> Approve(int id)
+        [HttpPost("Approve")]
+        public async Task<ActionResult> Approve(ApproveInvitationViewModel approveInvitationViewModel)
         {
             try
             {
-                if (id == 0)
+                if (ModelState.IsValid)
                 {
-                    return BadRequest($"there is no invitation with that id = '{id}'");
+                    await _invitationService.ApproveInvitationAsync(approveInvitationViewModel);
+
+                    return Ok();
                 }
-
-                await _invitationService.ApproveInvitationAsync(id);
-
-                return Ok();
+                else
+                {
+                    return BadRequest(ModelState);
+                }
             }
             catch (Exception ex)
             {

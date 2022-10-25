@@ -46,14 +46,22 @@ namespace Qr_System.Controllers
         {
             if (ModelState.IsValid)
             {
-                var data = await _authService.LoginAsync(loginViewModel);
-
-                if (data.isAuthenticated)
+                try
                 {
-                    return Ok(new { id = data.id, token = data.token, name = data.userName, type =data.type });
-                }
+                    var data = await _authService.LoginAsync(loginViewModel);
 
-                return StatusCode(StatusCodes.Status500InternalServerError,data);
+                    if (data.isAuthenticated)
+                    {
+                        return Ok(new { id = data.id, token = data.token, name = data.userName, type = data.type });
+                    }
+
+                    return BadRequest(new { message = data.message });
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError,ex);
+                }
+          
             }
 
             return BadRequest(ModelState);
@@ -96,6 +104,69 @@ namespace Qr_System.Controllers
 
             return BadRequest(ModelState);
 
+        }
+
+        [HttpPost("SwitchOwner")]
+        public async Task<ActionResult> SwitchAccount([FromBody]SwitchViewModel switchViewModel)
+        {
+            try
+            {
+                await _authService.SwitchAccountAsync(switchViewModel);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+        } 
+
+        [HttpGet("GetOwnersCount")]
+        public async Task<ActionResult> GetOwnersCount()
+        {
+            var data = await _authService.GetOwnersCountAsync();
+
+            return Ok(data);
+        }
+
+        [HttpGet("GetAllOwners")]
+        public async Task<ActionResult> GetAllOwners()
+        {
+            try
+            {
+                var data = await _authService.GetAllOwnersAsync();
+
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+        }
+
+        [HttpGet("GetAllUsers")]
+        public async Task<ActionResult> GetAllUsers()
+        {
+            try
+            {
+                var data = await _authService.GetAllUsersAsync();
+
+                return Ok(data.Select(u => new
+                {
+                    id = u.id,
+                    firstName = u.firstName,
+                    lastName = u.lastName,
+                    email = u.email,
+                    phone = u.phone,
+                    address = u.address,
+                    userName = u.userName
+                }));
+                
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
         }
     }
 }

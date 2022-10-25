@@ -9,7 +9,6 @@ namespace DomainLayer.Models
 {
     public class Unit
     {
-
         public int? Id { get; set; }
 
         public string Name { get; set; }
@@ -20,6 +19,4 @@ namespace DomainLayer.Models
 
         public virtual Owner Owner { get; set; }
     }
-
 }
-

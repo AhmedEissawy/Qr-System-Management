@@ -9,6 +9,14 @@ namespace Qr_System.DTOs
     {
         public string message { get; set; }
 
+        public string firstName { get; set; }
+
+        public string lastName { get; set; }
+
+        public string address { get; set; }
+
+        public string phone { get; set; }
+
         public bool isAuthenticated { get; set; }
 
         public string token { get; set; }
@@ -30,7 +38,3 @@ namespace Qr_System.DTOs
     }
 
 }
-
-
-
-

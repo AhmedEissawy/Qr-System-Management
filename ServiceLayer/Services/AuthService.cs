@@ -4,12 +4,14 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using MimeKit;
 using Qr_System.DTOs;
 using Qr_System.ViewModels;
 using RepositoryLayer;
+using ServiceLayer.DTOs;
 using ServiceLayer.IServices;
 using ServiceLayer.ViewModels;
 using System;
@@ -131,15 +133,21 @@ namespace ServiceLayer.Services
 
         public async Task<ResponseModel> LoginAsync(LoginViewModel loginViewModel)
         {
-            var user = await _userManager.FindByEmailAsync(loginViewModel.Email);
+
+            var user = await _context.Users.Include(u=>u.Owner).Where(u => u.Email == loginViewModel.Email).FirstOrDefaultAsync();
 
             if (user == null)
-                return new ResponseModel { message = "Bad Credntials" };
+                return new ResponseModel { message = "Bad Credentials" };
+
+            if (user.Type == "owner" && !user.Owner.Switch)
+            {
+                return new ResponseModel { message = "Wait until check your data" };
+            }
 
             var result = await _userManager.CheckPasswordAsync(user, loginViewModel.Password);
 
             if (!result)
-                return new ResponseModel { message = "invalid password" };
+                return new ResponseModel { message = "invalid Credentials" };
 
             var userClaims = new[]
             {
@@ -264,7 +272,7 @@ namespace ServiceLayer.Services
 
             SmtpClient client = new SmtpClient();
 
-            client.Connect(_configuration["MailSettings:Host"], int.Parse(_configuration["MailSettings:Port"]), true);
+            client.Connect(_configuration["MailSettings:Host"],Convert.ToInt32(_configuration["MailSettings:Port"]), true);
 
             client.Authenticate(_configuration["MailSettings:Email"], _configuration["MailSettings:Password"]);
 
@@ -294,5 +302,59 @@ namespace ServiceLayer.Services
             return "user do not upload photo";
         }
 
+        public async Task SwitchAccountAsync(SwitchViewModel switchViewModel)
+        {
+            var user = await _context.Users.Include(u=>u.Owner).Where(u => u.Id == switchViewModel.Id).FirstOrDefaultAsync();
+
+            user.Owner.Switch = switchViewModel.Switch;
+
+            await _context.SaveChangesAsync();
+
+            await SendEmailAsync(user.Owner.Email,"Confirm Your Login","<h1>Welcome,Now You Can Login with that Email</h1>");
+        }
+
+        public async Task<OwnersCount> GetOwnersCountAsync()
+        {
+            var pendingOwners = await _context.Owners.Where(o => !o.Switch).CountAsync();
+
+            var approvedOwners = await _context.Owners.Where(o => o.Switch).CountAsync();
+
+            return new OwnersCount
+            {
+                PendingCount = pendingOwners,
+                ApprovedCount = approvedOwners
+            };
+        }
+
+        public async Task<List<OwnerDto>> GetAllOwnersAsync()
+        {
+            var owners = await _context.Owners.Include(o => o.Unit).Select(o=>new OwnerDto { 
+                 id = o.Id,
+                 ownerName = o.UserName,
+                 ownerUnit = o.Unit.Name,
+                 ownerPhone = o.Phone,
+                 Image = o.Image
+
+            }).ToListAsync();
+
+            return owners;
+        }
+
+        public async Task<List<ResponseModel>> GetAllUsersAsync()
+        {
+            var users = await _context.Users.Where(u=>u.Type == "user").Select(u=> new ResponseModel { 
+                
+                 id = u.Id,
+                 email = u.Email,
+                 userName = u.UserName,
+                 firstName = u.FirstName,
+                 lastName = u.LastName,
+                 address = u.Address,
+                 phone = u.PhoneNumber
+
+            }).ToListAsync();
+
+            return users;
+        }
     }
 }

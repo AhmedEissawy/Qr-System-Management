@@ -18,6 +18,6 @@ namespace ServiceLayer.IServices
 
         Task DeleteAsync(int id);
 
-        Task ApproveInvitationAsync(int id);
+        Task ApproveInvitationAsync(ApproveInvitationViewModel approveInvitationViewModel);
     }
 }

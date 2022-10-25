@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Qr_System.DTOs;
 using Qr_System.ViewModels;
+using ServiceLayer.DTOs;
 using ServiceLayer.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -20,9 +21,15 @@ namespace ServiceLayer.IServices
 
         Task<ResponseModel> ResetPasswordAsync(ResetPasswordViewModel resetPasswordViewModel);
 
+        Task SwitchAccountAsync(SwitchViewModel switchViewModel);
+
+        Task<OwnersCount> GetOwnersCountAsync();
+
+        Task<List<OwnerDto>> GetAllOwnersAsync();
+
+        Task<List<ResponseModel>> GetAllUsersAsync();
+
         Task SendEmailAsync(string mailTo, string subject, string body, IList<IFormFile> attachments = null);
 
     }
-
 }
-

@@ -30,6 +30,8 @@ namespace DomainLayer.Models
 
         public string Password { get; set; }
 
+        public bool Switch { get; set; }
+
         public string Type { get; set; }
 
         public string Image { get; set; }

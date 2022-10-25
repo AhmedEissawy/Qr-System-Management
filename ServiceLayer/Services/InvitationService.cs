@@ -21,11 +21,13 @@ namespace ServiceLayer.Services
             _context = context;
         }
 
-        public async Task ApproveInvitationAsync(int id)
+        public async Task ApproveInvitationAsync(ApproveInvitationViewModel approveInvitationViewModel)
         {
-            var invitation = await _context.Invitaions.FindAsync(id);
+            var invitation = await _context.Invitaions.FindAsync(approveInvitationViewModel.Id);
 
-            invitation.Approve = true;
+            invitation.Approve = approveInvitationViewModel.approve;
+
+            _context.Invitaions.Update(invitation);
 
             await _context.SaveChangesAsync();
 
@@ -51,10 +53,11 @@ namespace ServiceLayer.Services
             {
                 VisitorName = invitationViewModel.VisitorName,
                 VisitorIdentifier = invitationViewModel.SSN,
+                VisitorPhone = invitationViewModel.VisitorPhone,
                 UnitName = unit.Name,
                 OwnerId = ownerName.Id,
                 StartDate = invitationViewModel.StartDate,
-                EndDate = invitationViewModel.EndDate
+                EndDate = invitationViewModel.EndDate,
             };
 
             await _context.Invitaions.AddAsync(invitaion);
@@ -64,11 +67,16 @@ namespace ServiceLayer.Services
             var invitaionDto = new InvitationDto()
             {
                 visitorName = invitaion.VisitorName,
+                visitorPhone = invitaion.VisitorPhone,
                 sSN = invitaion.VisitorIdentifier,
                 unitName = invitaion.UnitName,
+                ownerEmail = invitaion.Owner.Email,
+                ownerPhone =invitaion.Owner.Phone,
                 ownerName = invitaion.Owner.UserName,
                 startDate = invitaion.StartDate,
-                endDate = invitaion.EndDate,
+                endDate = invitaion.EndDate,              
+                Approve =invitaion.Approve,
+                id = invitaion.Id,
                 isSuccess =true
             };
 
@@ -94,10 +102,15 @@ namespace ServiceLayer.Services
                  visitorName =i.VisitorName,
                  sSN = i.VisitorIdentifier,
                  ownerName = i.Owner.UserName,
+                 ownerPhone =i.Owner.Phone,
                  unitName = i.UnitName,
                  startDate = i.StartDate,
                  endDate = i.EndDate,
                  Approve =i.Approve,
+                 visitorPhone =i.VisitorPhone,
+                 ownerEmail =i.Owner.Email,
+                 count =_context.Invitaions.Where(i => i.StartDate.Date == date).Count(),
+                 id =i.Id
             }).ToListAsync();
 
             return invitations;
@@ -113,9 +126,13 @@ namespace ServiceLayer.Services
                 endDate = invitation.EndDate,
                 visitorName = invitation.VisitorName,
                 ownerName = invitation.Owner.UserName,
+                ownerPhone =invitation.Owner.Phone,
                 unitName = invitation.UnitName,
                 sSN = invitation.VisitorIdentifier,
                 Approve =invitation.Approve,
+                visitorPhone =invitation.VisitorPhone,
+                ownerEmail =invitation.Owner.Email,
+                id =invitation.Id,
                 isSuccess = true
             };
 

@@ -19,6 +19,8 @@ namespace DomainLayer.Models
 
         public string VisitorIdentifier { get; set; }
 
+        public string VisitorPhone { get; set; }
+
         public string UnitName { get; set; }
 
         public bool Approve { get; set; }

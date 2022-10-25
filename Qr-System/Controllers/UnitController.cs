@@ -12,7 +12,6 @@ namespace Qr_System.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class UnitController : ControllerBase
     {
         private readonly IUnitService _unitService;
@@ -55,7 +54,7 @@ namespace Qr_System.Controllers
             {
                 var data = await _unitService.GetAllAsync();
 
-                return Ok(data.Select(u=>new {id = u.id,name = u.name}));
+                return Ok(data.Select(u=>new {id = u.id,name = u.name,phone = u.phone}));
             }
             catch (Exception ex)
             {
