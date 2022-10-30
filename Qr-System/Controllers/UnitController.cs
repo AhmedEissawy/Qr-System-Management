@@ -62,6 +62,21 @@ namespace Qr_System.Controllers
             }
         }
 
+        [HttpGet("GetUnitById/{id}")]
+        public async Task<ActionResult> GetUnitById(int id)
+        {
+            try
+            {
+                var data = await _unitService.GetByIdAsync(id);
+
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+        }
+
         [HttpPut("Update/{id}")]
         public async Task<ActionResult> Update(int id,[FromBody] UnitViewModel unitViewModel)
         {

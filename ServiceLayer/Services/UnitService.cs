@@ -73,6 +73,21 @@ namespace ServiceLayer.Services
             return units;
         }
 
+        public async Task<UnitDto> GetByIdAsync(int id)
+        {
+            var unit = await _context.Units.Where(u => u.Id == id).FirstOrDefaultAsync();
+
+            var unitDto = new UnitDto()
+            {
+                id = unit.Id,
+                name = unit.Name,
+                phone = unit.Phone,
+            };
+
+            return unitDto;
+
+        }
+
         public async Task<UnitDto> UpdateAsync(int id, UnitViewModel unitViewModel)
         {
             var existUnit = await _context.Units.FindAsync(id);

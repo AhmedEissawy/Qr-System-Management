@@ -16,6 +16,7 @@ using ServiceLayer.IServices;
 using ServiceLayer.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
@@ -29,18 +30,27 @@ namespace ServiceLayer.Services
     {
         private readonly UserManager<ApplicationUser> _userManager;
 
+        private readonly SignInManager<ApplicationUser> _signInManager;
+
         private readonly IConfiguration _configuration;
 
         private readonly ApplicationDbContext _context;
 
         private IHostingEnvironment _host;
 
-        public AuthService(UserManager<ApplicationUser> userManager, IHostingEnvironment host, IConfiguration configuration, ApplicationDbContext context)
+        public AuthService(
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
+            IHostingEnvironment host,
+            IConfiguration configuration,
+            ApplicationDbContext context
+            )
         {
             _userManager = userManager;
             _host = host;
             _configuration = configuration;
             _context = context;
+            _signInManager = signInManager;
         }
 
         public async Task<ResponseModel> RegisterAsync(RegisterViewModel registerViewModel)
@@ -81,6 +91,27 @@ namespace ServiceLayer.Services
                     isAuthenticated = true
                 };
             }
+
+            if (registerViewModel.UnitId == null)
+            {
+                return new ResponseModel
+                {
+                    message = "owner should select unit"
+                };
+            }
+
+            var unit = await _context.Units.Include(u => u.Owner).Where(u => u.Id == registerViewModel.UnitId).FirstOrDefaultAsync();
+
+            bool ownedUnit = unit.OwnerId.HasValue;
+
+            if (ownedUnit)
+            {
+                return new ResponseModel
+                {
+                    message = "Unit Already Owned"
+                };
+            }
+
             var user = new ApplicationUser
             {
                 Email = registerViewModel.Email,
@@ -102,14 +133,12 @@ namespace ServiceLayer.Services
                 UserName = user.UserName,
                 Address = user.Address,
                 ApplicationUserId = user.Id,
-                Password = user.PasswordHash,
                 Type = user.Type,  
+                View = true,
                 Image = UploadPhoto(registerViewModel),
             };
 
             var result = await _userManager.CreateAsync(user, registerViewModel.Password);
-
-            var unit = await _context.Units.FindAsync(registerViewModel.UnitId);
 
             unit.OwnerId = user.Owner.Id;
 
@@ -134,7 +163,8 @@ namespace ServiceLayer.Services
         public async Task<ResponseModel> LoginAsync(LoginViewModel loginViewModel)
         {
 
-            var user = await _context.Users.Include(u=>u.Owner).Where(u => u.Email == loginViewModel.Email).FirstOrDefaultAsync();
+            var user = await _context.Users.Include(u => u.Owner)
+                     .Where(u => u.Email == loginViewModel.Email || u.UserName == loginViewModel.Email).FirstOrDefaultAsync();
 
             if (user == null)
                 return new ResponseModel { message = "Bad Credentials" };
@@ -144,9 +174,12 @@ namespace ServiceLayer.Services
                 return new ResponseModel { message = "Wait until check your data" };
             }
 
-            var result = await _userManager.CheckPasswordAsync(user, loginViewModel.Password);
+            var userName = new EmailAddressAttribute().IsValid(loginViewModel.Email) ?
+                _userManager.FindByEmailAsync(loginViewModel.Email).Result.UserName : loginViewModel.Email;
 
-            if (!result)
+            var result = await _signInManager.PasswordSignInAsync(userName, loginViewModel.Password, true, lockoutOnFailure: false);
+
+            if (!result.Succeeded)
                 return new ResponseModel { message = "invalid Credentials" };
 
             var userClaims = new[]
@@ -176,14 +209,16 @@ namespace ServiceLayer.Services
                 expiresOn = token.ValidTo,
                 userName = user.UserName,
                 id = user.Id,
-                type = user.Type
+                type = user.Type,
+                phone = user.PhoneNumber,
+                email = user.Email
             };
 
         }
 
-        public async Task<ResponseModel> ForgetPasswordAsync(string email)
+        public async Task<ResponseModel> ForgetPasswordAsync(ForgetPasswordViewModel forgetPasswordViewModel)
         {
-            var user = await _userManager.FindByEmailAsync(email);
+            var user = await _userManager.FindByEmailAsync(forgetPasswordViewModel.Email);
 
             if (user == null)
                 return new ResponseModel { message = "there is no user with that email" };
@@ -194,9 +229,9 @@ namespace ServiceLayer.Services
 
             var validToken = WebEncoders.Base64UrlEncode(encodedToken);
 
-            string url = $"{_configuration["AppUrl"]}/ResetPassword?email={email}&token={validToken}";
+            string url = $"localhost:4200/dashboard/resetPassword";
 
-            await SendEmailAsync(email, "Reset Your Password", "<h1>Follow The Instructions to Reset Your Password</h1>" +
+            await SendEmailAsync(forgetPasswordViewModel.Email, "Reset Your Password", "<h1>Follow The Instructions to Reset Your Password</h1>" +
                 $"<p>To Reset Your Password <a href='{url}'>click here</a></p>");
 
 
@@ -299,18 +334,18 @@ namespace ServiceLayer.Services
 
             }
 
-            return "user do not upload photo";
+            return null;
         }
 
         public async Task SwitchAccountAsync(SwitchViewModel switchViewModel)
         {
-            var user = await _context.Users.Include(u=>u.Owner).Where(u => u.Id == switchViewModel.Id).FirstOrDefaultAsync();
+            var owner = await _context.Owners.Where(u => u.Id == switchViewModel.Id).FirstOrDefaultAsync();
 
-            user.Owner.Switch = switchViewModel.Switch;
+            owner.Switch = switchViewModel.Switch;
 
             await _context.SaveChangesAsync();
 
-            await SendEmailAsync(user.Owner.Email,"Confirm Your Login","<h1>Welcome,Now You Can Login with that Email</h1>");
+            await SendEmailAsync(owner.Email,"Confirm Your Login","<h1>Welcome,Now You Can Login with that Email</h1>");
         }
 
         public async Task<OwnersCount> GetOwnersCountAsync()
@@ -319,22 +354,26 @@ namespace ServiceLayer.Services
 
             var approvedOwners = await _context.Owners.Where(o => o.Switch).CountAsync();
 
+            var rejectOwners = await _context.Owners.Where(o => !o.View).CountAsync();
+
             return new OwnersCount
             {
                 PendingCount = pendingOwners,
-                ApprovedCount = approvedOwners
+                ApprovedCount = approvedOwners,
+                RejectedOwners = rejectOwners
             };
         }
 
         public async Task<List<OwnerDto>> GetAllOwnersAsync()
         {
-            var owners = await _context.Owners.Include(o => o.Unit).Select(o=>new OwnerDto { 
+            var owners = await _context.Owners.Include(ou => ou.Unit).Where(o => o.View).Select(o=>new OwnerDto { 
                  id = o.Id,
                  ownerName = o.UserName,
                  ownerUnit = o.Unit.Name,
                  ownerPhone = o.Phone,
-                 Image = o.Image
-
+                 ownerEmail = o.Email,
+                 Image = o.Image == null ? null : $"Images/Users/{o.Image}",
+                 Switch = o.Switch
             }).ToListAsync();
 
             return owners;
@@ -355,6 +394,68 @@ namespace ServiceLayer.Services
             }).ToListAsync();
 
             return users;
+        }
+
+        public async Task<ResponseModel> GetUserByIdAsync(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null)
+            {
+                return new ResponseModel
+                {
+                    message = "there is no user with that id"
+                };
+            }
+
+            return new ResponseModel
+            {
+                id = user.Id,
+                firstName = user.FirstName,
+                lastName = user.LastName,
+                userName = user.UserName,
+                email = user.Email,
+                address = user.Address,
+                phone = user.PhoneNumber,
+                image = user.Image != null ? $"Images/Users/{user.Image}" : null
+            };
+        }
+
+        public async Task RejectOwnerAsync(int id)
+        {
+            var owner = await _context.Owners.FindAsync(id);
+
+            owner.View = false;
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<ResponseModel> UpdateUserAsync(string id, UpdateUserViewModel updateUserViewModel)
+        {
+            var existUser = await _userManager.FindByIdAsync(id);
+
+            existUser.FirstName = updateUserViewModel.FirstName;
+
+            existUser.LastName = updateUserViewModel.LastName;
+
+            existUser.PhoneNumber = updateUserViewModel.Phone;
+
+            existUser.Address = updateUserViewModel.Address;
+
+            existUser.PasswordHash =  _userManager.PasswordHasher.HashPassword(existUser,updateUserViewModel.Password);
+
+            await _userManager.UpdateAsync(existUser);
+
+            return new ResponseModel
+            {
+                 id = existUser.Id,
+                 firstName = existUser.FirstName,
+                 lastName = existUser.LastName,
+                 phone = existUser.PhoneNumber,
+                 address = existUser.Address,
+                 email = existUser.Email,
+                 userName = existUser.UserName
+            };
         }
     }
 }

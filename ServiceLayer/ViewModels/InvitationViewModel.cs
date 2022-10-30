@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DomainLayer.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -34,5 +35,6 @@ namespace ServiceLayer.ViewModels
 
         [Required]
         public string OwnerPhone { get; set; }
+
     }
 }

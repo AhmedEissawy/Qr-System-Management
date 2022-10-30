@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DomainLayer.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,8 +28,6 @@ namespace ServiceLayer.DTOs
         public string ownerPhone { get; set; }
 
         public string ownerEmail { get; set; }
-
-        public bool Approve { get; set; }
 
         public string message { get; set; }
 

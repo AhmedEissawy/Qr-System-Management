@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace ServiceLayer.ViewModels
 {
-    public class SwitchViewModel
+    public class ForgetPasswordViewModel
     {
-        public int Id { get; set; }
-
-        public bool Switch { get; set; }
+        public string Email { get; set; }
     }
 }

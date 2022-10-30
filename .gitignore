@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Qr-System/wwwroot/Images/Users
+/Qr-System/wwwroot/Images/Users

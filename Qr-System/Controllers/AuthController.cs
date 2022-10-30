@@ -27,14 +27,23 @@ namespace Qr_System.Controllers
         {
             if (ModelState.IsValid)
             {
-                var data = await _authService.RegisterAsync(registerViewModel);
-
-                if (data.isAuthenticated)
+                try
                 {
-                    return Ok(new { message = data.message });
-                }
+                    var data = await _authService.RegisterAsync(registerViewModel);
 
-                return StatusCode(StatusCodes.Status500InternalServerError,data);
+                    if (data != null)
+                    {
+                        return Ok(new { message = data.message });
+                    }
+
+                    return BadRequest("Something Went wrong");
+                }
+                catch (Exception ex)
+                {
+
+                    return StatusCode(StatusCodes.Status500InternalServerError, ex);
+                }
+                
             }
 
             return BadRequest(ModelState);
@@ -52,7 +61,15 @@ namespace Qr_System.Controllers
 
                     if (data.isAuthenticated)
                     {
-                        return Ok(new { id = data.id, token = data.token, name = data.userName, type = data.type });
+                        return Ok(
+                            new { 
+                            id = data.id,
+                            token = data.token,
+                            name = data.userName,
+                            type = data.type,
+                            phone = data.phone,
+                            email = data.email
+                        });
                     }
 
                     return BadRequest(new { message = data.message });
@@ -69,11 +86,11 @@ namespace Qr_System.Controllers
         }
 
         [HttpPost("ForgetPassword")]
-        public async Task<ActionResult> ForgetPassword([FromBody] string email)
+        public async Task<ActionResult> ForgetPassword([FromBody] ForgetPasswordViewModel forgetPasswordViewModel)
         {
-            if (!string.IsNullOrEmpty(email))
+            if (!string.IsNullOrEmpty(forgetPasswordViewModel.Email))
             {
-                var data = await _authService.ForgetPasswordAsync(email);
+                var data = await _authService.ForgetPasswordAsync(forgetPasswordViewModel);
 
                 if (data.isAuthenticated)
                 {
@@ -165,6 +182,67 @@ namespace Qr_System.Controllers
             }
             catch (Exception ex)
             {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+        }
+
+        [HttpGet("GetUserById/{id}")]
+        public async Task<ActionResult> GetUserById(string id)
+        {
+            try
+            {
+                if (id == null)
+                {
+                    return BadRequest("id is null");
+                }
+                var data = await _authService.GetUserByIdAsync(id);
+
+                return Ok(data);
+         
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+        }
+
+        [HttpPut("UpdateUser/{id}")]
+        public async Task<ActionResult> UpdateUser(string id ,UpdateUserViewModel updateUserViewModel)
+        {
+            try
+            {
+                if (id == null)
+                {
+                    return BadRequest("id is null");
+                }
+                var data = await _authService.UpdateUserAsync(id,updateUserViewModel);
+
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+        }
+
+        [HttpGet("RejectOwner/{id}")]
+        public async Task<ActionResult> RejectOwner(int id)
+        {
+            try
+            {
+                if (id == 0)
+                {
+                    return BadRequest();
+                }
+
+                 await _authService.RejectOwnerAsync(id);
+
+                return Ok();
+
+            }
+            catch (Exception ex)
+            {
+
                 return StatusCode(StatusCodes.Status500InternalServerError, ex);
             }
         }

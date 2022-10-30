@@ -49,8 +49,7 @@ namespace Qr_System.Controllers
                         unitName = data.unitName,
                         startDate = data.startDate,
                         endDate = data.endDate,
-                        id = data.id,
-                        approve =data.Approve
+                        id = data.id
                     });
                 }
                 catch (Exception ex)
@@ -107,8 +106,7 @@ namespace Qr_System.Controllers
                         unitName = data.unitName,
                         startDate = data.startDate,
                         endDate = data.endDate,
-                        approved = data.Approve,
-                        id = data.id,
+                        id = data.id
                     });
 
             }

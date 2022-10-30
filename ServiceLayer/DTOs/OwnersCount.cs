@@ -11,5 +11,7 @@ namespace ServiceLayer.DTOs
         public int PendingCount { get; set; }
 
         public int ApprovedCount { get; set; }
+
+        public int RejectedOwners { get; set; }
     }
 }

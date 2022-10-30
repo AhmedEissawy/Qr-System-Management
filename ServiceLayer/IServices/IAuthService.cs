@@ -17,7 +17,7 @@ namespace ServiceLayer.IServices
 
         Task<ResponseModel> LoginAsync(LoginViewModel loginViewModel);
 
-        Task<ResponseModel> ForgetPasswordAsync(string email);
+        Task<ResponseModel> ForgetPasswordAsync(ForgetPasswordViewModel forgetPasswordViewModel);
 
         Task<ResponseModel> ResetPasswordAsync(ResetPasswordViewModel resetPasswordViewModel);
 
@@ -27,7 +27,13 @@ namespace ServiceLayer.IServices
 
         Task<List<OwnerDto>> GetAllOwnersAsync();
 
+        Task RejectOwnerAsync(int id);
+
         Task<List<ResponseModel>> GetAllUsersAsync();
+
+        Task<ResponseModel> GetUserByIdAsync(string id);
+
+        Task<ResponseModel> UpdateUserAsync(string id, UpdateUserViewModel updateUserViewModel);
 
         Task SendEmailAsync(string mailTo, string subject, string body, IList<IFormFile> attachments = null);
 

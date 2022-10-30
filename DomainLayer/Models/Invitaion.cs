@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DomainLayer.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,11 +24,10 @@ namespace DomainLayer.Models
 
         public string UnitName { get; set; }
 
-        public bool Approve { get; set; }
+        public InvitationCase Approve { get; set; }
 
         public int OwnerId { get; set; }
 
         public virtual Owner Owner { get; set; }
     }
-
 }

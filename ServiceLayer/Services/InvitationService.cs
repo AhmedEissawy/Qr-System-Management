@@ -1,4 +1,5 @@
-﻿using DomainLayer.Models;
+﻿using DomainLayer.Enums;
+using DomainLayer.Models;
 using Microsoft.EntityFrameworkCore;
 using RepositoryLayer;
 using ServiceLayer.DTOs;
@@ -25,7 +26,7 @@ namespace ServiceLayer.Services
         {
             var invitation = await _context.Invitaions.FindAsync(approveInvitationViewModel.Id);
 
-            invitation.Approve = approveInvitationViewModel.approve;
+            invitation.Approve = approveInvitationViewModel.Approve;
 
             _context.Invitaions.Update(invitation);
 
@@ -58,6 +59,7 @@ namespace ServiceLayer.Services
                 OwnerId = ownerName.Id,
                 StartDate = invitationViewModel.StartDate,
                 EndDate = invitationViewModel.EndDate,
+                Approve = InvitationCase.Pending
             };
 
             await _context.Invitaions.AddAsync(invitaion);
@@ -75,7 +77,6 @@ namespace ServiceLayer.Services
                 ownerName = invitaion.Owner.UserName,
                 startDate = invitaion.StartDate,
                 endDate = invitaion.EndDate,              
-                Approve =invitaion.Approve,
                 id = invitaion.Id,
                 isSuccess =true
             };
@@ -106,7 +107,6 @@ namespace ServiceLayer.Services
                  unitName = i.UnitName,
                  startDate = i.StartDate,
                  endDate = i.EndDate,
-                 Approve =i.Approve,
                  visitorPhone =i.VisitorPhone,
                  ownerEmail =i.Owner.Email,
                  count =_context.Invitaions.Where(i => i.StartDate.Date == date).Count(),
@@ -129,7 +129,6 @@ namespace ServiceLayer.Services
                 ownerPhone =invitation.Owner.Phone,
                 unitName = invitation.UnitName,
                 sSN = invitation.VisitorIdentifier,
-                Approve =invitation.Approve,
                 visitorPhone =invitation.VisitorPhone,
                 ownerEmail =invitation.Owner.Email,
                 id =invitation.Id,

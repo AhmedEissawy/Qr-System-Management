@@ -16,6 +16,8 @@ namespace ServiceLayer.IServices
 
         Task<UnitDto> UpdateAsync(int id, UnitViewModel unitViewModel);
 
+        Task<UnitDto> GetByIdAsync(int id);
+
         Task DeleteAsync(int id);
 
     }

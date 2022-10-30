@@ -123,6 +123,8 @@ namespace Qr_System
 
             app.IntilaizeDb();
 
+            app.UseStaticFiles();
+
             app.UseHttpsRedirection();
 
             app.UseRouting();

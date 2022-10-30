@@ -17,6 +17,8 @@ namespace Qr_System.DTOs
 
         public string phone { get; set; }
 
+        public string image { get; set; }
+
         public bool isAuthenticated { get; set; }
 
         public string token { get; set; }

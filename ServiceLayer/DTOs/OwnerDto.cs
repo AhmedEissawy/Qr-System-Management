@@ -17,5 +17,9 @@ namespace ServiceLayer.DTOs
         public string ownerUnit { get; set; }
 
         public string ownerPhone { get; set; }
+
+        public string ownerEmail { get; set; }
+
+        public bool Switch { get; set; }
     }
 }

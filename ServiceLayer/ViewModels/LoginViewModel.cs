@@ -11,7 +11,7 @@ namespace ServiceLayer.ViewModels
     {
         [Required]
         [StringLength(150)]
-        [EmailAddress]
+        [Display(Name ="Email Or UserName")]
         public string Email { get; set; }
 
         [Required]
