@@ -3,6 +3,7 @@ using ServiceLayer.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,13 +11,17 @@ namespace ServiceLayer.IServices
 {
     public interface IInvitationService
     {
-        Task<InvitationDto> CreateAsync(InvitationViewModel invitationViewModel);
+        Task<InvitationDto> CreateInvitationAsync(InvitationViewModel invitationViewModel);
 
-        Task<IEnumerable<InvitationDto>> GetAllAsync();
+        Task<IEnumerable<InvitationDto>> GetAllInvitationAsync();
 
-        Task<InvitationDto> GetByIdAsync(int id);
+        Task<IEnumerable<InvitationDto>> GetAllInvitationDailyAsync();
 
-        Task DeleteAsync(int id);
+        Task<IEnumerable<InvitationDto>> SearchInvitationAsync(SearchInvitationModel searchInvitationModel);
+
+        Task<InvitationDto> GetInvitationByIdAsync(int id);
+
+        Task DeleteInvitationAsync(int id);
 
         Task ApproveInvitationAsync(ApproveInvitationViewModel approveInvitationViewModel);
     }

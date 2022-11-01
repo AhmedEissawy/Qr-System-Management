@@ -92,72 +92,80 @@ namespace ServiceLayer.Services
                 };
             }
 
-            if (registerViewModel.UnitId == null)
+            else if (registerViewModel.Type == "owner")
             {
+                if (registerViewModel.UnitId == null)
+                {
+                    return new ResponseModel
+                    {
+                        message = "owner should select unit"
+                    };
+                }
+
+                var unit = await _context.Units.Include(u => u.Owner).Where(u => u.Id == registerViewModel.UnitId).FirstOrDefaultAsync();
+
+                bool ownedUnit = unit.OwnerId.HasValue;
+
+                if (ownedUnit)
+                {
+                    return new ResponseModel
+                    {
+                        message = "Unit Already Owned"
+                    };
+                }
+
+                var user = new ApplicationUser
+                {
+                    Email = registerViewModel.Email,
+                    FirstName = registerViewModel.FirstName,
+                    LastName = registerViewModel.LastName,
+                    PhoneNumber = registerViewModel.Phone,
+                    UserName = registerViewModel.UserName,
+                    Address = registerViewModel.Address,
+                    Image = UploadPhoto(registerViewModel),
+                    Type = registerViewModel.Type,
+                };
+
+                user.Owner = new Owner
+                {
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Phone = user.PhoneNumber,
+                    UserName = user.UserName,
+                    Address = user.Address,
+                    ApplicationUserId = user.Id,
+                    Type = user.Type,
+                    View = true,
+                    Image = UploadPhoto(registerViewModel),
+                };
+
+                var result = await _userManager.CreateAsync(user, registerViewModel.Password);
+
+                unit.OwnerId = user.Owner.Id;
+
+                await _context.SaveChangesAsync();
+
+                if (!result.Succeeded)
+                {
+                    return new ResponseModel
+                    {
+                        errors = result.Errors.Select(e => e.Description).ToList()
+                    };
+                }
+
                 return new ResponseModel
                 {
-                    message = "owner should select unit"
+                    message = "Owner Registered Successfully",
+                    isAuthenticated = true
                 };
             }
 
-            var unit = await _context.Units.Include(u => u.Owner).Where(u => u.Id == registerViewModel.UnitId).FirstOrDefaultAsync();
-
-            bool ownedUnit = unit.OwnerId.HasValue;
-
-            if (ownedUnit)
-            {
                 return new ResponseModel
                 {
-                    message = "Unit Already Owned"
+                    message = "SomeThing went Wrong Check Your Data"
                 };
-            }
-
-            var user = new ApplicationUser
-            {
-                Email = registerViewModel.Email,
-                FirstName = registerViewModel.FirstName,
-                LastName = registerViewModel.LastName,
-                PhoneNumber = registerViewModel.Phone,
-                UserName = registerViewModel.UserName,
-                Address = registerViewModel.Address,
-                Image = UploadPhoto(registerViewModel),
-                Type = registerViewModel.Type,
-            };
-
-            user.Owner = new Owner
-            {
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Phone = user.PhoneNumber,
-                UserName = user.UserName,
-                Address = user.Address,
-                ApplicationUserId = user.Id,
-                Type = user.Type,  
-                View = true,
-                Image = UploadPhoto(registerViewModel),
-            };
-
-            var result = await _userManager.CreateAsync(user, registerViewModel.Password);
-
-            unit.OwnerId = user.Owner.Id;
-
-            await _context.SaveChangesAsync();
-
-            if (!result.Succeeded)
-            {
-                return new ResponseModel
-                {
-                    errors = result.Errors.Select(e => e.Description).ToList()
-                };
-            }
-
-            return new ResponseModel
-            {
-                message = "Owner Registered Successfully",
-                isAuthenticated = true
-            };
-
+           
         }
 
         public async Task<ResponseModel> LoginAsync(LoginViewModel loginViewModel)
@@ -225,10 +233,6 @@ namespace ServiceLayer.Services
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-            var encodedToken = Encoding.UTF8.GetBytes(token);
-
-            var validToken = WebEncoders.Base64UrlEncode(encodedToken);
-
             string url = $"localhost:4200/dashboard/resetPassword";
 
             await SendEmailAsync(forgetPasswordViewModel.Email, "Reset Your Password", "<h1>Follow The Instructions to Reset Your Password</h1>" +
@@ -238,7 +242,7 @@ namespace ServiceLayer.Services
             return new ResponseModel
             {
                 isAuthenticated = true,
-                token = validToken,
+                token = token,
                 email = user.Email,
                 message = "Reset Password URL Sent to Your Email"
             };
@@ -322,6 +326,13 @@ namespace ServiceLayer.Services
         {
             if (model.Photo != null)
             {
+                const decimal maxFileInKb = 200;
+
+                if (model.Photo.Length/1024 > maxFileInKb)
+                {
+                   throw new Exception( "file size is more than 200 kb");
+                }
+
                 string uploadFolder = Path.Combine(_host.WebRootPath, "Images/Users");
                 string uniqueFileName = Guid.NewGuid() + ".jpg";
                 string filePath = Path.Combine(uploadFolder, uniqueFileName);
@@ -456,6 +467,13 @@ namespace ServiceLayer.Services
                  email = existUser.Email,
                  userName = existUser.UserName
             };
+        }
+
+        public async Task DeleteUserAsync(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+
+            await _userManager.DeleteAsync(user);
         }
     }
 }

@@ -33,6 +33,8 @@ namespace ServiceLayer.IServices
 
         Task<ResponseModel> GetUserByIdAsync(string id);
 
+        Task DeleteUserAsync(string id);
+
         Task<ResponseModel> UpdateUserAsync(string id, UpdateUserViewModel updateUserViewModel);
 
         Task SendEmailAsync(string mailTo, string subject, string body, IList<IFormFile> attachments = null);

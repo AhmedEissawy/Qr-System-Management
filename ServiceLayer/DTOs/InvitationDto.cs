@@ -31,6 +31,8 @@ namespace ServiceLayer.DTOs
 
         public string message { get; set; }
 
+        public InvitationCase approve { get; set; }
+
         public bool isSuccess { get; set; }
 
         public int count { get; set; }

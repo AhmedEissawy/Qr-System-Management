@@ -225,6 +225,13 @@ namespace Qr_System.Controllers
             }
         }
 
+        [HttpDelete("DeleteUser/{id}")]
+        public async Task<ActionResult> DeleteUser(string id)
+        {
+            await _authService.DeleteUserAsync(id);
+            return Ok();
+        }
+
         [HttpGet("RejectOwner/{id}")]
         public async Task<ActionResult> RejectOwner(int id)
         {

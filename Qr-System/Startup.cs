@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Qr_System.Extensions;
 using RepositoryLayer;
+using ServiceLayer;
 using ServiceLayer.IServices;
 using ServiceLayer.Services;
 using System.Text;
@@ -31,10 +32,12 @@ namespace Qr_System
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers().AddNewtonsoftJson(options =>
+            services.AddControllers().AddNewtonsoftJson(options => 
 
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
+
+            services.AddSignalR();
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {
@@ -78,6 +81,8 @@ namespace Qr_System
             services.AddTransient<IUnitService, UnitService>();
 
             services.AddTransient<IInvitationService, InvitationService>();
+
+            services.AddTransient<IDashboardService, DashboardService>();
 
             services.AddCors();
 
@@ -136,6 +141,8 @@ namespace Qr_System
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+
+                endpoints.MapHub<SignalServer>("/signalrServer");
             });
         }
 

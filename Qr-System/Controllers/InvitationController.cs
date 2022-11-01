@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace Qr_System.Controllers
@@ -24,14 +25,14 @@ namespace Qr_System.Controllers
             _invitationService = invitationService;
         }
 
-        [HttpPost("Create")]
-        public async Task<ActionResult> Create([FromBody]InvitationViewModel invitationViewModel)
+        [HttpPost("CreateInvitation")]
+        public async Task<ActionResult> CreateInvitation([FromBody]InvitationViewModel invitationViewModel)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var data = await _invitationService.CreateAsync(invitationViewModel);
+                    var data = await _invitationService.CreateInvitationAsync(invitationViewModel);
 
                     if (!data.isSuccess)
                     {
@@ -62,12 +63,27 @@ namespace Qr_System.Controllers
             return BadRequest(ModelState);
         }
 
-        [HttpGet("GetAll")]
-        public async Task<ActionResult> GetAll()
+        [HttpGet("GetAllInvitation")]
+        public async Task<ActionResult> GetAllInvitation()
         {
             try
             {
-                var data = await _invitationService.GetAllAsync();
+                var data = await _invitationService.GetAllInvitationAsync();
+
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+        }
+
+        [HttpGet("GetAllInvitationDaily")]
+        public async Task<ActionResult> GetAllInvitationDaily()
+        {
+            try
+            {
+                var data = await _invitationService.GetAllInvitationDailyAsync();
 
                 if (data.Any())
                 {
@@ -83,8 +99,8 @@ namespace Qr_System.Controllers
             }
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult> Get(int id)
+        [HttpGet("GetInvitationById/{id}")]
+        public async Task<ActionResult> GetInvitationById(int id)
         {
             try
             {
@@ -93,7 +109,7 @@ namespace Qr_System.Controllers
                     return BadRequest($"there is no invitation with that id = '{id}'");
                 }
 
-                var data = await _invitationService.GetByIdAsync(id);
+                var data = await _invitationService.GetInvitationByIdAsync(id);
 
                     return Ok(new
                     {
@@ -117,8 +133,8 @@ namespace Qr_System.Controllers
             }
         }
 
-        [HttpDelete("Delete/{id}")]
-        public async Task<ActionResult> Delete(int id)
+        [HttpDelete("DeleteInvitation/{id}")]
+        public async Task<ActionResult> DeleteInvitation(int id)
         {
             try
             {
@@ -127,7 +143,7 @@ namespace Qr_System.Controllers
                     return BadRequest($"there is no invitation with that id = '{id}'");
                 }
 
-                await _invitationService.DeleteAsync(id);
+                await _invitationService.DeleteInvitationAsync(id);
 
                 return Ok();
             }
@@ -138,8 +154,8 @@ namespace Qr_System.Controllers
             }
         }
 
-        [HttpPost("Approve")]
-        public async Task<ActionResult> Approve(ApproveInvitationViewModel approveInvitationViewModel)
+        [HttpPost("ApproveInvitation")]
+        public async Task<ActionResult> ApproveInvitation([FromBody] ApproveInvitationViewModel approveInvitationViewModel)
         {
             try
             {
@@ -157,6 +173,19 @@ namespace Qr_System.Controllers
             catch (Exception ex)
             {
 
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+        }
+        [HttpPost("SearchInvitation")]
+        public async Task<ActionResult> SearchInvitation([FromBody] SearchInvitationModel searchInvitationModel)
+        {
+            try
+            {
+                var data = await _invitationService.SearchInvitationAsync(searchInvitationModel);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
                 return StatusCode(StatusCodes.Status500InternalServerError, ex);
             }
         }
